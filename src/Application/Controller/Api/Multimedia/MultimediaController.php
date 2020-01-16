@@ -7,21 +7,23 @@
 
 declare(strict_types = 1);
 
-namespace Ergonode\Multimedia\Application\Controller\Api;
+namespace Ergonode\Multimedia\Application\Controller\Api\Multimedia;
 
 use Ergonode\Api\Application\Exception\FormValidationHttpException;
 use Ergonode\Api\Application\Response\CreatedResponse;
+use Ergonode\EventSourcing\Infrastructure\Bus\CommandBusInterface;
 use Ergonode\Multimedia\Application\Form\MultimediaUploadForm;
 use Ergonode\Multimedia\Application\Model\MultimediaUploadModel;
-use Ergonode\Multimedia\Domain\Command\UploadMultimediaCommand;
+use Ergonode\Multimedia\Domain\Command\AddMultimediaCommand;
 use Ergonode\Multimedia\Domain\Entity\Multimedia;
+use Ergonode\Multimedia\Domain\Query\MultimediaQueryInterface;
 use Ergonode\Multimedia\Infrastructure\Provider\MultimediaFileProviderInterface;
+use Ergonode\Multimedia\Infrastructure\Service\HashCalculationServiceInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -34,18 +36,36 @@ class MultimediaController extends AbstractController
     private $fileProvider;
 
     /**
-     * @var MessageBusInterface
+     * @var MultimediaQueryInterface
      */
-    private $messageBus;
+    private $query;
+
+    /**
+     * @var HashCalculationServiceInterface
+     */
+    private $hashService;
+
+    /**
+     * @var CommandBusInterface
+     */
+    private $commandBus;
 
     /**
      * @param MultimediaFileProviderInterface $fileProvider
-     * @param MessageBusInterface             $messageBus
+     * @param MultimediaQueryInterface        $query
+     * @param HashCalculationServiceInterface $hashService
+     * @param CommandBusInterface             $commandBus
      */
-    public function __construct(MultimediaFileProviderInterface $fileProvider, MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        MultimediaFileProviderInterface $fileProvider,
+        MultimediaQueryInterface $query,
+        HashCalculationServiceInterface $hashService,
+        CommandBusInterface $commandBus
+    ) {
         $this->fileProvider = $fileProvider;
-        $this->messageBus = $messageBus;
+        $this->query = $query;
+        $this->hashService = $hashService;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -80,11 +100,17 @@ class MultimediaController extends AbstractController
 
         $form = $this->createForm(MultimediaUploadForm::class, $uploadModel);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $command = new UploadMultimediaCommand('Default', $uploadModel->upload);
-            $this->messageBus->dispatch($command);
 
-            $response = new CreatedResponse($command->getId());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hash = $this->hashService->calculateHash($uploadModel->upload);
+            if ($this->query->fileExists($hash)) {
+                $response = new CreatedResponse($this->query->findIdByHash($hash));
+            } else {
+                $command = new AddMultimediaCommand($uploadModel->upload);
+                $this->commandBus->dispatch($command);
+
+                $response = new CreatedResponse($command->getId());
+            }
         } else {
             throw new FormValidationHttpException($form);
         }

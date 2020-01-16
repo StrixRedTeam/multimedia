@@ -9,12 +9,13 @@ declare(strict_types = 1);
 
 namespace Ergonode\Multimedia\Domain\Command;
 
+use Ergonode\EventSourcing\Infrastructure\DomainCommandInterface;
 use Ergonode\Multimedia\Domain\Entity\MultimediaId;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  */
-class UploadMultimediaCommand
+class AddMultimediaCommand implements DomainCommandInterface
 {
     /**
      * @var MultimediaId
@@ -22,25 +23,18 @@ class UploadMultimediaCommand
     private $id;
 
     /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var UploadedFile
+     * @var File
      */
     private $file;
 
     /**
-     * @param string       $name
-     * @param UploadedFile $file
+     * @param File $file
      *
      * @throws \Exception
      */
-    public function __construct(string $name, UploadedFile $file)
+    public function __construct(File $file)
     {
-        $this->id = MultimediaId::createFromFile($file);
-        $this->name = $name;
+        $this->id = MultimediaId::generate();
         $this->file = $file;
     }
 
@@ -53,17 +47,9 @@ class UploadMultimediaCommand
     }
 
     /**
-     * @return string
+     * @return File
      */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return UploadedFile
-     */
-    public function getFile(): UploadedFile
+    public function getFile(): File
     {
         return $this->file;
     }

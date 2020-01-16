@@ -9,16 +9,17 @@ declare(strict_types = 1);
 
 namespace Ergonode\Multimedia\Infrastructure\Service;
 
-use Ergonode\Multimedia\Domain\ValueObject\Hash;
-
 /**
  */
-interface HashCalculationServiceInterface
+class FileExistCheckService
 {
     /**
-     * @param \SplFileInfo $file
+     * @param string $file
      *
-     * @return Hash
+     * @return bool
      */
-    public function calculateHash(\SplFileInfo $file): Hash;
+    public function check(string $file): bool
+    {
+        return file_exists($file);
+    }
 }

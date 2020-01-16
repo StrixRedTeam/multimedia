@@ -9,7 +9,7 @@ declare(strict_types = 1);
 
 namespace Ergonode\Multimedia\Infrastructure\JMS\Serializer\Handler;
 
-use Ergonode\Multimedia\Domain\Entity\MultimediaId;
+use Ergonode\Multimedia\Domain\ValueObject\ImageFormat;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -18,7 +18,7 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
 
 /**
  */
-class MultimediaIdHandler implements SubscribingHandlerInterface
+class ImageFormatHandler implements SubscribingHandlerInterface
 {
     /**
      * @return array
@@ -31,14 +31,14 @@ class MultimediaIdHandler implements SubscribingHandlerInterface
         foreach ($formats as $format) {
             $methods[] = [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
-                'type' => MultimediaId::class,
+                'type' => ImageFormat::class,
                 'format' => $format,
                 'method' => 'serialize',
             ];
 
             $methods[] = [
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
-                'type' => MultimediaId::class,
+                'type' => ImageFormat::class,
                 'format' => $format,
                 'method' => 'deserialize',
             ];
@@ -49,7 +49,7 @@ class MultimediaIdHandler implements SubscribingHandlerInterface
 
     /**
      * @param SerializationVisitorInterface $visitor
-     * @param MultimediaId                  $multimediaId
+     * @param ImageFormat                   $format
      * @param array                         $type
      * @param Context                       $context
      *
@@ -57,11 +57,11 @@ class MultimediaIdHandler implements SubscribingHandlerInterface
      */
     public function serialize(
         SerializationVisitorInterface $visitor,
-        MultimediaId $multimediaId,
+        ImageFormat $format,
         array $type,
         Context $context
     ): string {
-        return $multimediaId->getValue();
+        return $format->getFormat();
     }
 
     /**
@@ -70,14 +70,14 @@ class MultimediaIdHandler implements SubscribingHandlerInterface
      * @param array                           $type
      * @param Context                         $context
      *
-     * @return MultimediaId
+     * @return ImageFormat
      */
     public function deserialize(
         DeserializationVisitorInterface $visitor,
         $data,
         array $type,
         Context $context
-    ): MultimediaId {
-        return new MultimediaId($data);
+    ): ImageFormat {
+        return new ImageFormat($data);
     }
 }

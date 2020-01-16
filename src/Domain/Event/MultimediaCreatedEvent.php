@@ -7,34 +7,43 @@
 
 declare(strict_types = 1);
 
-namespace Ergonode\Multimedia\Domain\Entity;
+namespace Ergonode\Multimedia\Domain\Event;
 
 use Ergonode\Core\Domain\Entity\AbstractId;
-use Ergonode\EventSourcing\Domain\AbstractAggregateRoot;
-use Ergonode\Multimedia\Domain\Event\MultimediaCreatedEvent;
+use Ergonode\EventSourcing\Infrastructure\DomainEventInterface;
+use Ergonode\Multimedia\Domain\Entity\MultimediaId;
 use Ergonode\Multimedia\Domain\ValueObject\Hash;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  */
-class Multimedia extends AbstractAggregateRoot
+class MultimediaCreatedEvent implements DomainEventInterface
 {
     /**
      * @var MultimediaId
+     *
+     * @JMS\Type("Ergonode\Multimedia\Domain\Entity\MultimediaId")
      */
     private $id;
 
     /**
      * @var string
+     *
+     * @JMS\Type("string")
      */
     private $name;
 
     /**
-     * @var string;
+     * @var string
+     *
+     * @JMS\Type("string")
      */
     private $extension;
 
     /**
-     * @var string|null;
+     * @var string|null
+     *
+     * @JMS\Type("string")
      */
     private $mime;
 
@@ -42,11 +51,15 @@ class Multimedia extends AbstractAggregateRoot
      * The file size in bytes.
      *
      * @var int
+     *
+     * @JMS\Type("int")
      */
     private $size;
 
     /**
-     * @var Hash;
+     * @var Hash
+     *
+     * @JMS\Type("Ergonode\Multimedia\Domain\ValueObject\Hash")
      */
     private $hash;
 
@@ -57,8 +70,6 @@ class Multimedia extends AbstractAggregateRoot
      * @param int          $size      The file size in bytes.
      * @param Hash         $hash
      * @param string|null  $mime
-     *
-     * @throws \Exception
      */
     public function __construct(
         MultimediaId $id,
@@ -68,30 +79,18 @@ class Multimedia extends AbstractAggregateRoot
         Hash $hash,
         ?string $mime = null
     ) {
-        $this->apply(
-            new MultimediaCreatedEvent(
-                $id,
-                $name,
-                $extension,
-                $size,
-                $hash,
-                $mime
-            )
-        );
+        $this->id = $id;
+        $this->name = $name;
+        $this->extension = $extension;
+        $this->mime = $mime;
+        $this->size = $size;
+        $this->hash = $hash;
     }
 
     /**
-     * @return string
+     * @return MultimediaId
      */
-    public function getFileName(): string
-    {
-        return sprintf('%s.%s', $this->id, $this->extension);
-    }
-
-    /**
-     * @return AbstractId
-     */
-    public function getId(): AbstractId
+    public function getAggregateId(): AbstractId
     {
         return $this->id;
     }
@@ -134,18 +133,5 @@ class Multimedia extends AbstractAggregateRoot
     public function getHash(): Hash
     {
         return $this->hash;
-    }
-
-    /**
-     * @param MultimediaCreatedEvent $event
-     */
-    protected function applyMultimediaCreatedEvent(MultimediaCreatedEvent $event): void
-    {
-        $this->id = $event->getAggregateId();
-        $this->name = $event->getName();
-        $this->extension = $event->getExtension();
-        $this->mime = $event->getMime();
-        $this->size = $event->getSize();
-        $this->hash = $event->getHash();
     }
 }
