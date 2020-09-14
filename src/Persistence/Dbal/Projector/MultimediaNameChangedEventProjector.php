@@ -12,10 +12,11 @@ namespace Ergonode\Multimedia\Persistence\Dbal\Projector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Ergonode\Multimedia\Domain\Event\MultimediaCreatedEvent;
+use Ergonode\Multimedia\Domain\Event\MultimediaNameChangedEvent;
 
 /**
  */
-class MultimediaCreatedEventProjector
+class MultimediaNameChangedEventProjector
 {
     private const TABLE = 'multimedia';
 
@@ -33,25 +34,23 @@ class MultimediaCreatedEventProjector
     }
 
     /**
-     * @param MultimediaCreatedEvent $event
+     * @param MultimediaNameChangedEvent $event
      *
      * @throws DBALException
      */
-    public function __invoke(MultimediaCreatedEvent $event): void
+    public function __invoke(MultimediaNameChangedEvent $event): void
     {
         /**
          * @var $event MultimediaCreatedEvent
          */
-        $this->connection->insert(
+        $this->connection->update(
             self::TABLE,
             [
-                'id' => $event->getAggregateId(),
                 'name' => $event->getName(),
-                'extension' => $event->getExtension(),
-                'size' => $event->getSize(),
-                'mime' => $event->getMime(),
-                'hash' => $event->getHash(),
-                'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+            ],
+            [
+                'id' => $event->getAggregateId(),
             ]
         );
     }
