@@ -7,10 +7,10 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Tests\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Tests\Application\Validator;
 
-use Ergonode\Multimedia\Application\Validator\Constraint\MultimediaExists;
-use Ergonode\Multimedia\Application\Validator\Constraint\MultimediaExistsValidator;
+use Ergonode\Multimedia\Application\Validator\MultimediaExists;
+use Ergonode\Multimedia\Application\Validator\MultimediaExistsValidator;
 use Ergonode\Multimedia\Domain\Entity\Multimedia;
 use Ergonode\SharedKernel\Domain\Aggregate\MultimediaId;
 use Ergonode\Multimedia\Domain\Repository\MultimediaRepositoryInterface;

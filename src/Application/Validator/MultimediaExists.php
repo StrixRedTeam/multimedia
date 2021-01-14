@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Application\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
@@ -17,9 +17,4 @@ use Symfony\Component\Validator\Constraint;
 class MultimediaExists extends Constraint
 {
     public string $message = 'Multimedia {{ value }} not exists.';
-
-    public function validatedBy(): string
-    {
-        return MultimediaExistsValidator::class;
-    }
 }

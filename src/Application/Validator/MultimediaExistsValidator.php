@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Application\Validator;
 
 use Ergonode\SharedKernel\Domain\Aggregate\MultimediaId;
 use Ergonode\Multimedia\Domain\Repository\MultimediaRepositoryInterface;

@@ -6,11 +6,11 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Tests\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Tests\Application\Validator;
 
-use Ergonode\Multimedia\Application\Validator\Constraint\MultimediaExtensionValidator;
+use Ergonode\Multimedia\Application\Validator\MultimediaExtensionValidator;
 use Ergonode\Multimedia\Infrastructure\Provider\MultimediaExtensionProvider;
-use Ergonode\Multimedia\Application\Validator\Constraint\MultimediaExtension;
+use Ergonode\Multimedia\Application\Validator\MultimediaExtension;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
