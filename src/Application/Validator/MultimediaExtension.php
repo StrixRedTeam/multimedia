@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Application\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
@@ -16,9 +16,4 @@ use Symfony\Component\Validator\Constraint;
 class MultimediaExtension extends Constraint
 {
     public string $message = 'Multimedia extension {{ value }} not supported.';
-
-    public function validatedBy(): string
-    {
-        return MultimediaExtensionValidator::class;
-    }
 }

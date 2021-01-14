@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Application\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
@@ -18,9 +18,4 @@ class MultimediaName extends Constraint
     public string $message = 'Multimedia name is too long. It should contain {{ limit }} characters or less.';
 
     public int $max;
-
-    public function validatedBy(): string
-    {
-        return MultimediaNameValidator::class;
-    }
 }

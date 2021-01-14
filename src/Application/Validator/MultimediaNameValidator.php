@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Ergonode\Multimedia\Application\Validator\Constraint;
+namespace Ergonode\Multimedia\Application\Validator;
 
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
