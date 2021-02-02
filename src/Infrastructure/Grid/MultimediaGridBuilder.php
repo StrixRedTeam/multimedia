@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Ergonode\Multimedia\Infrastructure\Grid;
 
 use Ergonode\Core\Domain\ValueObject\Language;
-use Ergonode\Grid\AbstractGrid;
 use Ergonode\Grid\Column\DateColumn;
 use Ergonode\Grid\Column\ImageColumn;
 use Ergonode\Grid\Column\TextColumn;
@@ -26,8 +25,12 @@ use Ergonode\Grid\Filter\NumericFilter;
 use Ergonode\Multimedia\Domain\Query\MultimediaQueryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Ergonode\Grid\Column\LinkColumn;
+use Ergonode\Grid\GridInterface;
+use Ergonode\Grid\GridBuilderInterface;
+use Ergonode\Grid\Grid;
+use Ergonode\Grid\Column\IdColumn;
 
-class MultimediaGrid extends AbstractGrid
+class MultimediaGridBuilder implements GridBuilderInterface
 {
     private MultimediaExtensionProvider $provider;
 
@@ -39,32 +42,10 @@ class MultimediaGrid extends AbstractGrid
         $this->query = $query;
     }
 
-
-    public function init(GridConfigurationInterface $configuration, Language $language): void
+    public function build(GridConfigurationInterface $configuration, Language $language): GridInterface
     {
-        $extensions = [];
-        foreach ($this->provider->dictionary() as $extension) {
-            $extensions[] = new LabelFilterOption($extension, $extension);
-        }
-
-        $types = [];
-        foreach ($this->query->getTypes() as $type) {
-            $types[] = new LabelFilterOption($type, $type);
-        }
-
-        $id = new TextColumn('id', 'Id');
-        $id->setVisible(false);
-        $this->addColumn('id', $id);
-
-        $this->addColumn('image', new ImageColumn('image', 'Preview'));
-        $this->addColumn('name', new TextColumn('name', 'File name', new TextFilter()));
-        $this->addColumn('extension', new SelectColumn('extension', 'Extension', new MultiSelectFilter($extensions)));
-        $this->addColumn('type', new SelectColumn('type', 'Type', new MultiSelectFilter($types)));
-        $column = new NumericColumn('size', 'Size', new NumericFilter());
-        $column->setSuffix('KB');
-        $this->addColumn('size', $column);
-        $this->addColumn('relations', new NumericColumn('relations', 'Relations', new NumericFilter()));
-        $this->addColumn('created_at', new DateColumn('created_at', 'Created at', new DateFilter()));
+        $types = $this->getTypes();
+        $extensions = $this->getExtension();
 
         $links = [
             'get' => [
@@ -91,6 +72,43 @@ class MultimediaGrid extends AbstractGrid
                 'method' => Request::METHOD_DELETE,
             ],
         ];
-        $this->addColumn('_links', new LinkColumn('hal', $links));
+
+        $grid = new Grid();
+
+        $column = new NumericColumn('size', 'Size', new NumericFilter());
+        $column->setSuffix('KB');
+
+        $grid
+            ->addColumn('id', new IdColumn('id'))
+            ->addColumn('image', new ImageColumn('image', 'Preview'))
+            ->addColumn('name', new TextColumn('name', 'File name', new TextFilter()))
+            ->addColumn('extension', new SelectColumn('extension', 'Extension', new MultiSelectFilter($extensions)))
+            ->addColumn('type', new SelectColumn('type', 'Type', new MultiSelectFilter($types)))
+            ->addColumn('size', $column)
+            ->addColumn('relations', new NumericColumn('relations', 'Relations', new NumericFilter()))
+            ->addColumn('created_at', new DateColumn('created_at', 'Created at', new DateFilter()))
+            ->addColumn('_links', new LinkColumn('hal', $links));
+
+        return $grid;
+    }
+
+    private function getExtension(): array
+    {
+        $result = [];
+        foreach ($this->provider->dictionary() as $extension) {
+            $result[] = new LabelFilterOption($extension, $extension);
+        }
+
+        return $result;
+    }
+
+    private function getTypes(): array
+    {
+        $result = [];
+        foreach ($this->query->getTypes() as $type) {
+            $result[] = new LabelFilterOption($type, $type);
+        }
+
+        return $result;
     }
 }
