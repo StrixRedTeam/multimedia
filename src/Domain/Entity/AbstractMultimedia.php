@@ -16,6 +16,7 @@ use Ergonode\SharedKernel\Domain\Aggregate\MultimediaId;
 use Ergonode\Core\Domain\ValueObject\TranslatableString;
 use Ergonode\Multimedia\Domain\Event\MultimediaAltChangedEvent;
 use Ergonode\Multimedia\Domain\Event\MultimediaNameChangedEvent;
+use Ergonode\Multimedia\Domain\Event\MultimediaTitleChangedEvent;
 
 abstract class AbstractMultimedia extends AbstractAggregateRoot
 {
@@ -36,6 +37,8 @@ abstract class AbstractMultimedia extends AbstractAggregateRoot
      * @deprecated
      */
     private Hash $hash;
+
+    private TranslatableString $title;
 
     private TranslatableString $alt;
 
@@ -72,6 +75,16 @@ abstract class AbstractMultimedia extends AbstractAggregateRoot
     /**
      * @throws \Exception
      */
+    public function changeTitle(TranslatableString $title): void
+    {
+        if (!$title->isEqual($this->title)) {
+            $this->apply(new MultimediaTitleChangedEvent($this->id, $title));
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function changeAlt(TranslatableString $alt): void
     {
         if (!$alt->isEqual($this->alt)) {
@@ -92,6 +105,11 @@ abstract class AbstractMultimedia extends AbstractAggregateRoot
     public function getId(): MultimediaId
     {
         return $this->id;
+    }
+
+    public function getTitle(): TranslatableString
+    {
+        return $this->title;
     }
 
     public function getAlt(): TranslatableString
@@ -135,7 +153,13 @@ abstract class AbstractMultimedia extends AbstractAggregateRoot
         $this->mime = $event->getMime();
         $this->size = $event->getSize();
         $this->hash = $event->getHash();
+        $this->title = new TranslatableString();
         $this->alt = new TranslatableString();
+    }
+
+    protected function applyMultimediaTitleChangedEvent(MultimediaTitleChangedEvent $event): void
+    {
+        $this->title = $event->getTitle();
     }
 
     protected function applyMultimediaAltChangedEvent(MultimediaAltChangedEvent $event): void

@@ -40,6 +40,7 @@ class UpdateMultimediaCommandHandler
         /** @var Multimedia $multimedia */
         $multimedia = $this->repository->load($command->getId());
         $multimedia->changeAlt($command->getAlt());
+        $multimedia->changeTitle($command->getTitle());
         if ($multimedia->getName() !== $command->getName() && $this->query->findIdByFilename($command->getName())) {
             throw new \UnexpectedValueException(sprintf('Multimedia name %s already exists.', $command->getName()));
         }
